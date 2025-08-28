@@ -551,22 +551,19 @@ export default function Home() {
 
   const testMobyDickSentence = () => {
     setTestPhrase('little or no money in my purse and nothing particular to interest me');
-    setTimeout(() => testPhraseFilter(), 100);
+    // Remove the auto-trigger
   };
 
-  const findAndTestBestSequence = () => {
-    if (analysisResult?.sequences && analysisResult.sequences.length > 0) {
-      // Find the longest sequence that's closest to 12 words
-      const bestSequence = analysisResult.sequences.find(seq => seq.sequence.length >= 12) 
-        || analysisResult.sequences[0]; // fallback to longest available
-      
-      if (bestSequence) {
-        const testPhrase = bestSequence.sequence.slice(0, 12).join(' '); // Take first 12 words
-        console.log('Testing best sequence:', testPhrase);
-        setTestPhrase(testPhrase);
-        setTimeout(() => testPhraseFilter(), 100);
-      }
-    }
+  const addSequenceToTestPhrase = (sequence: string[]) => {
+    const phraseText = sequence.join(' ');
+    setTestPhrase(phraseText);
+    console.log('Added sequence to test phrase:', phraseText);
+    
+    // Scroll to test phrase section
+    document.querySelector('#test-phrase-section')?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
   };
 
   return (
@@ -633,15 +630,23 @@ export default function Home() {
                           <span className="bg-yellow-100 px-1 rounded">
                             {seq.sequence.join(' ')}
                           </span>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1 mb-2">
+                          Context: ...{seq.context}...
+                        </div>
+                        <div className="flex gap-2">
                           <button 
                             onClick={() => openSequenceModal(seq)}
-                            className="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                            className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
                           >
                             📍 Find in Book
                           </button>
-                        </div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          Context: ...{seq.context}...
+                          <button 
+                            onClick={() => addSequenceToTestPhrase(seq.sequence)}
+                            className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
+                          >
+                            🧪 Add to Test Phrase
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -672,7 +677,7 @@ export default function Home() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div id="test-phrase-section" className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Test Phrase Filter</h2>
           <p className="text-gray-600 mb-4">
             Enter a test phrase to see which words match the BIP39 wordlist:
@@ -684,20 +689,23 @@ export default function Home() {
                 onClick={testMobyDickSentence}
                 className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded"
               >
-                Test Moby Dick Sentence
+                Load Control Test (Low Match)
               </button>
               
-              <button 
+              {/* Remove this button since it's redundant */}
+              {/* <button 
                 onClick={findAndTestBestSequence}
                 disabled={!analysisResult?.sequences || analysisResult.sequences.length === 0}
                 className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white px-4 py-2 rounded"
               >
                 Test Best Found Sequence
-              </button>
+              </button> */}
             </div>
             
             <p className="text-xs text-gray-500">
-              Original test: &quot;little or no money in my purse and nothing particular to interest me&quot;
+              Control test phrase: &quot;little or no money in my purse and nothing particular to interest me&quot;
+              <br />
+              <em>This demonstrates a typical sentence with low BIP39 match rate</em>
             </p>
           </div>
           
